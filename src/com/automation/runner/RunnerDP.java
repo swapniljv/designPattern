@@ -14,8 +14,12 @@ import com.automation.composite.Composite;
 import com.automation.composite.Leaf;
 import com.automation.factory.Animal;
 import com.automation.factory.AnimalFactory;
+import com.automation.flyweight.Flyweight;
+import com.automation.flyweight.FlyweightFactory;
 import com.automation.prototype.Dog;
 import com.automation.prototype.Person;
+import com.automation.proxy.FastThing;
+import com.automation.proxy.Proxy;
 import com.automation.singleton.SingeltonClass;
 
 public class RunnerDP {
@@ -27,11 +31,35 @@ public class RunnerDP {
 		// runAbstractFactory();
 		// runBuilder();
 		// runPrototype();
-		//runAdapter();
-		runComposite();
-		
+		// runAdapter();
+		// runComposite();
+		// runProxy();
+		runFlyweight();
 	}
-	
+
+	public static void runFlyweight() {
+
+		FlyweightFactory flyweightFactory = FlyweightFactory.getInstance();
+
+		for (int i = 0; i < 5; i++) {
+			Flyweight flyweightAdder = flyweightFactory.getFlyweight("add");
+			flyweightAdder.doMath(i, i);
+
+			Flyweight flyweightMultiplier = flyweightFactory.getFlyweight("multiply");
+			flyweightMultiplier.doMath(i, i);
+		}
+	}
+
+	public static void runProxy() {
+
+		Proxy proxy = new Proxy();
+
+		FastThing fastThing = new FastThing();
+		fastThing.sayHello();
+
+		proxy.sayHello();
+	}
+
 	public static void runComposite() {
 		Leaf leaf1 = new Leaf("Bob");
 		Leaf leaf2 = new Leaf("Fred");
