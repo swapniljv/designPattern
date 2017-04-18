@@ -5,6 +5,11 @@ import com.automation.abstractfactory.SpeciesFactory;
 import com.automation.adapter.TemperatureClassReporter;
 import com.automation.adapter.TemperatureInfo;
 import com.automation.adapter.TemperatureObjectReporter;
+import com.automation.bridge.BigBus;
+import com.automation.bridge.BigEngine;
+import com.automation.bridge.SmallCar;
+import com.automation.bridge.SmallEngine;
+import com.automation.bridge.Vehicle;
 import com.automation.builder.ItalianMealBuilder;
 import com.automation.builder.JapaneseMealBuilder;
 import com.automation.builder.Meal;
@@ -12,15 +17,28 @@ import com.automation.builder.MealBuilder;
 import com.automation.builder.MealDirector;
 import com.automation.composite.Composite;
 import com.automation.composite.Leaf;
+import com.automation.decorator.GrowlDecorator;
+import com.automation.decorator.LegDecorator;
+import com.automation.decorator.LivingAnimal;
+import com.automation.decorator.WingDecorator;
+import com.automation.facade.Facade;
 import com.automation.factory.Animal;
 import com.automation.factory.AnimalFactory;
 import com.automation.flyweight.Flyweight;
 import com.automation.flyweight.FlyweightFactory;
+import com.automation.mediator.AmericanSeller;
+import com.automation.mediator.Buyer;
+import com.automation.mediator.DollarConverter;
+import com.automation.mediator.FrenchBuyer;
+import com.automation.mediator.Mediator;
+import com.automation.mediator.SwedishBuyer;
 import com.automation.prototype.Dog;
 import com.automation.prototype.Person;
 import com.automation.proxy.FastThing;
 import com.automation.proxy.Proxy;
 import com.automation.singleton.SingeltonClass;
+import com.automation.template.HamburgerMeal;
+import com.automation.template.TacoMeal;
 
 public class RunnerDP {
 
@@ -34,7 +52,84 @@ public class RunnerDP {
 		// runAdapter();
 		// runComposite();
 		// runProxy();
-		runFlyweight();
+		// runFlyweight();
+		// runFacade();
+		// runBridge();
+		// runDecorator();
+		// runTemplate();
+		runMediator();
+	}
+
+	public static void runMediator() {
+		
+		Mediator mediator = new Mediator();
+
+		Buyer swedishBuyer = new SwedishBuyer(mediator);
+		Buyer frenchBuyer = new FrenchBuyer(mediator);
+		float sellingPriceInDollars = 10.0f;
+		AmericanSeller americanSeller = new AmericanSeller(mediator, sellingPriceInDollars);
+		DollarConverter dollarConverter = new DollarConverter(mediator);
+
+		float swedishBidInKronor = 55.0f;
+		while (!swedishBuyer.attemptToPurchase(swedishBidInKronor)) {
+			swedishBidInKronor += 15.0f;
+		}
+
+		float frenchBidInEuros = 3.0f;
+		while (!frenchBuyer.attemptToPurchase(frenchBidInEuros)) {
+			frenchBidInEuros += 1.5f;
+		}
+	}
+
+	public static void runTemplate() {
+
+		com.automation.template.Meal meal1 = new HamburgerMeal();
+		meal1.doMeal();
+
+		System.out.println();
+
+		com.automation.template.Meal meal2 = new TacoMeal();
+		meal2.doMeal();
+	}
+
+	public static void runDecorator() {
+
+		com.automation.decorator.Animal animal = new LivingAnimal();
+		animal.describe();
+
+		animal = new LegDecorator(animal);
+		animal.describe();
+
+		animal = new WingDecorator(animal);
+		animal.describe();
+
+		animal = new GrowlDecorator(animal);
+		animal = new GrowlDecorator(animal);
+		animal.describe();
+	}
+
+	public static void runBridge() {
+
+		Vehicle vehicle = new BigBus(new SmallEngine());
+		vehicle.drive();
+		vehicle.setEngine(new BigEngine());
+		vehicle.drive();
+
+		vehicle = new SmallCar(new SmallEngine());
+		vehicle.drive();
+		vehicle.setEngine(new BigEngine());
+		vehicle.drive();
+
+	}
+
+	public static void runFacade() {
+
+		Facade facade = new Facade();
+
+		int x = 3;
+		System.out.println("Cube of " + x + ":" + facade.cubeX(3));
+		System.out.println("Cube of " + x + " times 2:" + facade.cubeXTimes2(3));
+		System.out.println(x + " to sixth power times 2:" + facade.xToSixthPowerTimes2(3));
 	}
 
 	public static void runFlyweight() {

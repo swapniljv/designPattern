@@ -14,13 +14,12 @@ public class FlyweightFactory {
 	}
 
 	public static FlyweightFactory getInstance() {
-		if (flyweightFactory == null) {
-			flyweightFactory = new FlyweightFactory();
-		}
-		return flyweightFactory;
+		
+		return flyweightFactory == null ? new FlyweightFactory() : flyweightFactory;
 	}
 
 	public Flyweight getFlyweight(String key) {
+		
 		if (flyweightPool.containsKey(key)) {
 			return flyweightPool.get(key);
 		} else {
@@ -34,5 +33,4 @@ public class FlyweightFactory {
 			return flyweight;
 		}
 	}
-
 }
