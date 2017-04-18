@@ -15,6 +15,17 @@ import com.automation.builder.JapaneseMealBuilder;
 import com.automation.builder.Meal;
 import com.automation.builder.MealBuilder;
 import com.automation.builder.MealDirector;
+import com.automation.chain.EarthHandler;
+import com.automation.chain.MercuryHandler;
+import com.automation.chain.PlanetEnum;
+import com.automation.chain.PlanetHandler;
+import com.automation.chain.VenusHandler;
+import com.automation.command.Command;
+import com.automation.command.Dinner;
+import com.automation.command.DinnerCommand;
+import com.automation.command.Lunch;
+import com.automation.command.LunchCommand;
+import com.automation.command.MealInvoker;
 import com.automation.composite.Composite;
 import com.automation.composite.Leaf;
 import com.automation.decorator.GrowlDecorator;
@@ -32,11 +43,18 @@ import com.automation.mediator.DollarConverter;
 import com.automation.mediator.FrenchBuyer;
 import com.automation.mediator.Mediator;
 import com.automation.mediator.SwedishBuyer;
+import com.automation.observer.WeatherCustomer1;
+import com.automation.observer.WeatherCustomer2;
+import com.automation.observer.WeatherStation;
 import com.automation.prototype.Dog;
 import com.automation.prototype.Person;
 import com.automation.proxy.FastThing;
 import com.automation.proxy.Proxy;
 import com.automation.singleton.SingeltonClass;
+import com.automation.strategy.Context;
+import com.automation.strategy.HikeStrategy;
+import com.automation.strategy.SkiStrategy;
+import com.automation.strategy.Strategy;
 import com.automation.template.HamburgerMeal;
 import com.automation.template.TacoMeal;
 
@@ -57,7 +75,76 @@ public class RunnerDP {
 		// runBridge();
 		// runDecorator();
 		// runTemplate();
-		runMediator();
+		// runMediator();
+		// runChain();
+		// runObserver();
+		// runStrategy();
+		runCommand();
+	}
+	
+	public static void runCommand() {
+		Lunch lunch = new Lunch(); // receiver
+		Command lunchCommand = new LunchCommand(lunch); // concrete command
+
+		Dinner dinner = new Dinner(); // receiver
+		Command dinnerCommand = new DinnerCommand(dinner); // concrete command
+
+		MealInvoker mealInvoker = new MealInvoker(lunchCommand); // invoker
+		mealInvoker.invoke();
+		mealInvoker.setCommand(dinnerCommand);
+		mealInvoker.invoke();
+	}
+	
+	public static void runStrategy() {
+		
+		int temperatureInF = 60;
+
+		Strategy skiStrategy = new SkiStrategy();
+		Context context = new Context(temperatureInF, skiStrategy);
+
+		System.out.println("Is the temperature (" + context.getTemperatureInF() + "F) good for skiing? " + context.getResult());
+
+		Strategy hikeStrategy = new HikeStrategy();
+		context.setStrategy(hikeStrategy);
+
+		System.out.println("Is the temperature (" + context.getTemperatureInF() + "F) good for hiking? " + context.getResult());
+	}
+	
+	public static void runObserver() {
+		
+		WeatherStation weatherStation = new WeatherStation(33);
+		
+		WeatherCustomer1 wc1 = new WeatherCustomer1();
+		WeatherCustomer2 wc2 = new WeatherCustomer2();
+		weatherStation.addObserver(wc1);
+		weatherStation.addObserver(wc2);
+		
+		weatherStation.setTemperature(34);
+		
+		weatherStation.removeObserver(wc1);
+		
+		weatherStation.setTemperature(35);
+	}
+	
+	public static void runChain() {
+		PlanetHandler chain = setUpChain();
+
+		chain.handleRequest(PlanetEnum.VENUS);
+		chain.handleRequest(PlanetEnum.MERCURY);
+		chain.handleRequest(PlanetEnum.EARTH);
+		chain.handleRequest(PlanetEnum.JUPITER);
+	}
+	
+	private static PlanetHandler setUpChain() {
+		
+		PlanetHandler mercuryHandler = new MercuryHandler();
+		PlanetHandler venusHandler = new VenusHandler();
+		PlanetHandler earthHandler = new EarthHandler();
+
+		mercuryHandler.setSuccessor(venusHandler);
+		venusHandler.setSuccessor(earthHandler);
+
+		return mercuryHandler;
 	}
 
 	public static void runMediator() {
