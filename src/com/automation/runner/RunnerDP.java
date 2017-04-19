@@ -1,5 +1,9 @@
 package com.automation.runner;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import com.automation.abstractfactory.AbstractFactory;
 import com.automation.abstractfactory.SpeciesFactory;
 import com.automation.adapter.TemperatureClassReporter;
@@ -37,12 +41,16 @@ import com.automation.factory.Animal;
 import com.automation.factory.AnimalFactory;
 import com.automation.flyweight.Flyweight;
 import com.automation.flyweight.FlyweightFactory;
+import com.automation.iterator.Item;
+import com.automation.iterator.Menu;
 import com.automation.mediator.AmericanSeller;
 import com.automation.mediator.Buyer;
 import com.automation.mediator.DollarConverter;
 import com.automation.mediator.FrenchBuyer;
 import com.automation.mediator.Mediator;
 import com.automation.mediator.SwedishBuyer;
+import com.automation.memento.DietInfo;
+import com.automation.memento.DietInfoCaretaker;
 import com.automation.observer.WeatherCustomer1;
 import com.automation.observer.WeatherCustomer2;
 import com.automation.observer.WeatherStation;
@@ -51,12 +59,20 @@ import com.automation.prototype.Person;
 import com.automation.proxy.FastThing;
 import com.automation.proxy.Proxy;
 import com.automation.singleton.SingeltonClass;
+import com.automation.state.HappyState;
+import com.automation.state.SadState;
 import com.automation.strategy.Context;
 import com.automation.strategy.HikeStrategy;
 import com.automation.strategy.SkiStrategy;
 import com.automation.strategy.Strategy;
 import com.automation.template.HamburgerMeal;
 import com.automation.template.TacoMeal;
+import com.automation.visitor.NumberElement;
+import com.automation.visitor.NumberVisitor;
+import com.automation.visitor.SumVisitor;
+import com.automation.visitor.ThreeElement;
+import com.automation.visitor.TotalSumVisitor;
+import com.automation.visitor.TwoElement;
 
 public class RunnerDP {
 
@@ -79,9 +95,98 @@ public class RunnerDP {
 		// runChain();
 		// runObserver();
 		// runStrategy();
-		runCommand();
+		// runCommand();
+		// runState();
+		// runVisitor();
+		// runIterator();
+		runMemento();
 	}
-	
+
+	public static void runMemento() {
+		// caretaker
+		DietInfoCaretaker dietInfoCaretaker = new DietInfoCaretaker();
+
+		// originator
+		DietInfo dietInfo = new DietInfo("Fred", 1, 100);
+		System.out.println(dietInfo);
+
+		dietInfo.setDayNumberAndWeight(2, 99);
+		System.out.println(dietInfo);
+
+		System.out.println("Saving state.");
+		dietInfoCaretaker.saveState(dietInfo);
+
+		dietInfo.setDayNumberAndWeight(3, 98);
+		System.out.println(dietInfo);
+
+		dietInfo.setDayNumberAndWeight(4, 97);
+		System.out.println(dietInfo);
+
+		System.out.println("Restoring saved state.");
+		dietInfoCaretaker.restoreState(dietInfo);
+		System.out.println(dietInfo);
+
+	}
+
+	public static void runIterator() {
+		Item i1 = new Item("spaghetti", 7.50f);
+		Item i2 = new Item("hamburger", 6.00f);
+		Item i3 = new Item("chicken sandwich", 6.50f);
+
+		Menu menu = new Menu();
+		menu.addItem(i1);
+		menu.addItem(i2);
+		menu.addItem(i3);
+
+		System.out.println("Displaying Menu:");
+		Iterator<Item> iterator = menu.iterator();
+		while (iterator.hasNext()) {
+			Item item = iterator.next();
+			System.out.println(item);
+		}
+
+		System.out.println("\nRemoving last item returned");
+		iterator.remove();
+
+		System.out.println("\nDisplaying Menu:");
+		iterator = menu.iterator();
+		while (iterator.hasNext()) {
+			Item item = iterator.next();
+			System.out.println(item);
+		}
+	}
+
+	public static void runVisitor() {
+
+		TwoElement two1 = new TwoElement(3, 3);
+		TwoElement two2 = new TwoElement(2, 7);
+		ThreeElement three1 = new ThreeElement(3, 4, 5);
+
+		List<NumberElement> numberElements = new ArrayList<NumberElement>();
+		numberElements.add(two1);
+		numberElements.add(two2);
+		numberElements.add(three1);
+
+		System.out.println("Visiting element list with SumVisitor");
+		NumberVisitor sumVisitor = new SumVisitor();
+		sumVisitor.visit(numberElements);
+
+		System.out.println("\nVisiting element list with TotalSumVisitor");
+		TotalSumVisitor totalSumVisitor = new TotalSumVisitor();
+		totalSumVisitor.visit(numberElements);
+		System.out.println("Total sum:" + totalSumVisitor.getTotalSum());
+	}
+
+	public static void runState() {
+		com.automation.state.Person person = new com.automation.state.Person(new HappyState());
+		System.out.println("Hello in happy state: " + person.sayHello());
+		System.out.println("Goodbye in happy state: " + person.sayGoodbye());
+
+		person.setEmotionalState(new SadState());
+		System.out.println("Hello in sad state: " + person.sayHello());
+		System.out.println("Goodbye in sad state: " + person.sayGoodbye());
+	}
+
 	public static void runCommand() {
 		Lunch lunch = new Lunch(); // receiver
 		Command lunchCommand = new LunchCommand(lunch); // concrete command
@@ -94,38 +199,40 @@ public class RunnerDP {
 		mealInvoker.setCommand(dinnerCommand);
 		mealInvoker.invoke();
 	}
-	
+
 	public static void runStrategy() {
-		
+
 		int temperatureInF = 60;
 
 		Strategy skiStrategy = new SkiStrategy();
 		Context context = new Context(temperatureInF, skiStrategy);
 
-		System.out.println("Is the temperature (" + context.getTemperatureInF() + "F) good for skiing? " + context.getResult());
+		System.out.println(
+				"Is the temperature (" + context.getTemperatureInF() + "F) good for skiing? " + context.getResult());
 
 		Strategy hikeStrategy = new HikeStrategy();
 		context.setStrategy(hikeStrategy);
 
-		System.out.println("Is the temperature (" + context.getTemperatureInF() + "F) good for hiking? " + context.getResult());
+		System.out.println(
+				"Is the temperature (" + context.getTemperatureInF() + "F) good for hiking? " + context.getResult());
 	}
-	
+
 	public static void runObserver() {
-		
+
 		WeatherStation weatherStation = new WeatherStation(33);
-		
+
 		WeatherCustomer1 wc1 = new WeatherCustomer1();
 		WeatherCustomer2 wc2 = new WeatherCustomer2();
 		weatherStation.addObserver(wc1);
 		weatherStation.addObserver(wc2);
-		
+
 		weatherStation.setTemperature(34);
-		
+
 		weatherStation.removeObserver(wc1);
-		
+
 		weatherStation.setTemperature(35);
 	}
-	
+
 	public static void runChain() {
 		PlanetHandler chain = setUpChain();
 
@@ -134,9 +241,9 @@ public class RunnerDP {
 		chain.handleRequest(PlanetEnum.EARTH);
 		chain.handleRequest(PlanetEnum.JUPITER);
 	}
-	
+
 	private static PlanetHandler setUpChain() {
-		
+
 		PlanetHandler mercuryHandler = new MercuryHandler();
 		PlanetHandler venusHandler = new VenusHandler();
 		PlanetHandler earthHandler = new EarthHandler();
@@ -148,7 +255,7 @@ public class RunnerDP {
 	}
 
 	public static void runMediator() {
-		
+
 		Mediator mediator = new Mediator();
 
 		Buyer swedishBuyer = new SwedishBuyer(mediator);
